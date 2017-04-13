@@ -5,7 +5,7 @@ const postgresConfig = {
   host: 'localhost',
   port: 5432,
   database: 'pg-promise-exercises',
-  user: '<change-this-to-your-username>', // replace this with your username
+  user: 'ramonesweasel', // replace this with your username
   password: '' //  replace this if you have set a password for your username (this is unlikely)
 };
 
@@ -31,7 +31,8 @@ const allBooks = db.any('select * from books')
 /* This is calling the `then` function on the `allBooks` promise, and checks if
    we get back 15 rows. This assertion will fail. Make it PASS!*/
 allBooks.then(books => {
-  assert.deepEqual(books.length, 20)
+  assert.deepEqual(books.length, 15)
+  console.log('Hooray!')
 }).catch(error => {
   console.log('Dang, my assertion failed.', error);
 });
@@ -55,9 +56,10 @@ allBooks.then(books => {
 
 */
 
-let firstTenBooks; // = .... IMPLEMENT THIS FUNCTION
+let firstTenBooks = db.any('SELECT title FROM books LIMIT 10'); // = .... IMPLEMENT THIS FUNCTION
 firstTenBooks.then(books => {
-  assert(books.length, 10)
+  assert.deepEqual(books.length, 10)
+  console.log('OMG, 10 book titles!')
 }).catch(error => {
   console.log('Whoops, my function doesnt behave as expected.', error);
 });
@@ -83,11 +85,14 @@ firstTenBooks.then(books => {
 
 */
 
-let findAuthorsOrderedByLastName; // = .... IMPLEMENT THIS FUNCTION
+let findAuthorsOrderedByLastName = db.any('SELECT * FROM authors ORDER BY last_name ASC'); // = .... IMPLEMENT THIS FUNCTION
 findAuthorsOrderedByLastName.then(authors => {
   assert.deepEqual(authors.length, 19)
+    console.log('Returned 19 rows')
   assert.deepEqual(authors[0].last_name, 'Alcott')
+    console.log('First author\'s last name is Alcott')
   assert.deepEqual(authors[18].last_name, 'Worsley')
+    console.log('Last author\'s last name is Worsley')
 }).catch(error => {
   console.log('Whoops, my function doesnt behave as expected.', error);
 });
@@ -128,8 +133,19 @@ findAuthorsOrderedByLastName.then(authors => {
    {first_name: 'Theodor Seuss', last_name: 'Geisel', title: 'Bartholomew and the Oobleck'}
    {first_name: 'Theodor Seuss', last_name: 'Geisel', title: 'The Cat in the Hat'}]
 */
-let findBookAuthors; // IMPLEMENT THIS FUNCTION
 
+let findBookAuthors = db.any('SELECT first_name, last_name, title FROM authors JOIN books ON authors.id = author_id');
+
+findBookAuthors.then(authorAndBook => {
+  assert.deepEqual(authorAndBook.length, 15)
+    console.log('Correct number of books')
+  assert.deepEqual(authorAndBook[14].last_name, 'Geisel')
+    console.log('Last author\'s name is Geisel')
+  assert.deepEqual(authorAndBook[0].title, 'Practical PostgreSQL')
+    console.log('First book\'s title is Practical PostgreSQL')
+}).catch(error => {
+  console.log('Try again', error);
+})
 /* --------End of Exercise 4---------------- */
 
 
@@ -156,7 +172,18 @@ let findBookAuthors; // IMPLEMENT THIS FUNCTION
 
 
 */
-let authorIdWithTwoBooks; // IMPLEMENT THIS FUNCTION
+let authorIdWithTwoBooks = db.any('SELECT author_id FROM books GROUP BY author_id HAVING COUNT(books.author_id) = 2');
+
+authorIdWithTwoBooks.then(twoBookAuthors => {
+  assert.deepEqual(twoBookAuthors.length, 2)
+    console.log('There are two authors with two books')
+  assert.deepEqual(twoBookAuthors[0].author_id, 1809)
+    console.log('1809 is the first author_id with two books')
+  assert.deepEqual(twoBookAuthors[1].author_id, 7805)
+    console.log('7805 is the second author_id with two books')
+}).catch(error => {
+  console.log('Whoops!', error);
+});
 
 /* --------End of Exercise 5---------------- */
 
@@ -186,7 +213,18 @@ let authorIdWithTwoBooks; // IMPLEMENT THIS FUNCTION
       {title: 'The Tell-Tale Heart'}]
 
 */
-let bookTitlesWithMultipleEditions; // IMPLEMENT THIS FUNCTION
+let bookTitlesWithMultipleEditions = db.any('SELECT title FROM books JOIN editions ON books.id = editions.book_id WHERE edition > 1 GROUP BY title');
+
+bookTitlesWithMultipleEditions.then(multipleEditionTitles => {
+  assert.deepEqual(multipleEditionTitles.length, 5)
+    console.log('There are 5 books with multiple editions')
+  assert.deepEqual(multipleEditionTitles[2].title, 'Dune')
+    console.log('The third title in the table is Dune')
+}).catch(error => {
+  console.log('Whoopsie Daisy', error);
+})
+
+
 
 /* --------End of Exercise 6---------------- */
 
