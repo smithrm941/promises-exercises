@@ -251,7 +251,19 @@ bookTitlesWithMultipleEditions.then(multipleEditionTitles => {
      {title: 'The Cat in the Hat', first_name: 'Theodor Seuss', last_name: 'Geisel'}]
 
 */
-let findStockedBooks; // IMPLEMENT THIS FUNCTION
+let findStockedBooks = db.any('SELECT title, first_name, last_name FROM books JOIN authors ON books.author_id = authors.id JOIN editions ON books.id = editions.book_id JOIN daily_inventory ON editions.isbn = daily_inventory.isbn WHERE daily_inventory.is_stocked = TRUE GROUP BY books.title, authors.last_name, authors.first_name');
+
+findStockedBooks.then(stockedBooks => {
+  assert.deepEqual(stockedBooks.length, 2)
+    console.log('Correct number of stocked books')
+}).catch(error => {
+    console.log('Wrong!', error)
+})
+//books has id & title & author_id
+//editions has isbn & book_id
+//authors has id & last_name & first_name
+//daily_inventory has isbn & true/false for is_stocked
+
 
 /* --------End of Exercise 7---------------- */
 
